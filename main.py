@@ -26,9 +26,18 @@ def download():
         flash('Por favor ingresa una URL de YouTube válida.', 'error')
         return redirect(url_for('index'))
 
-    try:
-        cookie_file = os.environ.get('COOKIE_FILE', 'cookies.txt')
+    # Verificar cookies.txt
+    cookie_file = os.environ.get('COOKIE_FILE', 'cookies.txt')
+    if not os.path.isfile(cookie_file):
+        flash(f'No encuentro el archivo de cookies: {cookie_file}', 'error')
+        return redirect(url_for('index'))
+    with open(cookie_file, 'r', encoding='utf-8') as f:
+        header = f.readline()
+    if not header.startswith('# Netscape HTTP Cookie File'):
+        flash('Tu cookies.txt no está en formato Netscape válido.', 'error')
+        return redirect(url_for('index'))
 
+    try:
         ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(title).200s.%(ext)s'),
@@ -49,9 +58,9 @@ def download():
         title = sanitize_filename(info['title'])
         audio_file = os.path.join(DOWNLOAD_FOLDER, f"{title}.mp3")
 
-        # Encontrar la miniatura descargada (podría ser .jpg o .webp)
+        # Buscar la miniatura descargada (.jpg o .webp)
         thumb_path = None
-        for ext in ['jpg', 'webp']:
+        for ext in ('jpg', 'webp'):
             candidate = os.path.join(DOWNLOAD_FOLDER, f"{title}.{ext}")
             if os.path.exists(candidate):
                 thumb_path = candidate
