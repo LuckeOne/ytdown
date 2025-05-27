@@ -2,25 +2,29 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descarga Música de YouTube</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Descargar MP3 de YouTube</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
-<body>
-    <div class="container">
-        <h1>YouTube Music Downloader</h1>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="mb-4 text-center">Descargar MP3 desde YouTube</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flashes">
-              {% for category, message in messages %}
-                <li class="{{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
-        <form action="/download" method="post">
-            <input type="text" name="url" placeholder="Pega la URL de YouTube aquí" required>
-            <button type="submit">Descargar MP3</button>
+
+        <form method="POST" action="/download">
+            <div class="mb-3">
+                <label for="url" class="form-label">URL de YouTube</label>
+                <input type="text" class="form-control" id="url" name="url" placeholder="https://www.youtube.com/watch?v=..." required>
+            </div>
+            <button type="submit" class="btn btn-primary">Descargar</button>
         </form>
     </div>
 </body>
