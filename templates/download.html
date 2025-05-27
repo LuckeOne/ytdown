@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descarga Completa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>¡Listo!</h1>
+        <div class="track-info">
+            <img src="data:image/jpeg;base64,{{ cover_data }}" alt="Cover Art">
+            <div>
+                <h2>{{ title }}</h2>
+                <p>Autor: {{ author }}</p>
+                <p>Duración: {{ duration }}s</p>
+            </div>
+        </div>
+        <a href="{{ audio_file }}" class="download-btn">Descargar MP3</a>
+        <a href="/" class="back-btn">Descargar otra canción</a>
+    </div>
+</body>
+</html>
