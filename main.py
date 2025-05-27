@@ -1,4 +1,3 @@
-# File: main.py
 from flask import Flask, render_template, request, send_file, redirect, url_for, flash
 import os
 import yt_dlp
@@ -7,6 +6,10 @@ from io import BytesIO
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Configurar la carpeta de descargas
+DOWNLOAD_FOLDER = os.path.join(os.getcwd(), 'downloads')
+os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
 
 # Ruta principal
 @app.route('/')
@@ -27,7 +30,7 @@ def download():
 
         ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': '%(id)s.%(ext)s',  # No especificamos ruta completa, se descargará temporalmente
+            'outtmpl': os.path.join(DOWNLOAD_FOLDER, '%(id)s.%(ext)s'),  # Descargar en la carpeta de descargas
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -42,9 +45,9 @@ def download():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
 
-        # Rutas de archivos generados (se guardan temporalmente)
-        audio_file = f"{info['id']}.mp3"
-        thumb_file = f"{info['id']}.jpg"
+        # Rutas de archivos generados
+        audio_file = os.path.join(DOWNLOAD_FOLDER, f"{info['id']}.mp3")
+        thumb_file = os.path.join(DOWNLOAD_FOLDER, f"{info['id']}.jpg")
 
         # Verificar si el archivo de la carátula existe
         if os.path.exists(thumb_file):
@@ -63,7 +66,7 @@ def download():
                                title=info.get('title'),
                                author=info.get('uploader'),
                                duration=info.get('duration'),
-                               audio_file=url_for('serve_file', filename=audio_file),
+                               audio_file=url_for('serve_file', filename=f"{info['id']}.mp3"),
                                cover_data=cover_data)
 
     except Exception as e:
@@ -75,7 +78,7 @@ def download():
 def serve_file(filename):
     try:
         # Enviar el archivo temporal directamente para su descarga
-        return send_file(filename, as_attachment=True)
+        return send_file(os.path.join(DOWNLOAD_FOLDER, filename), as_attachment=True)
     except Exception as e:
         flash(f'Error al servir el archivo: {str(e)}', 'error')
         return redirect(url_for('index'))
